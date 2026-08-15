@@ -1,56 +1,94 @@
-use chrono::Utc;
+use ed25519_dalek::{
+    Signature, Signer, SigningKey, Verifier, VerifyingKey,
+};
+use getrandom::{rand_core::UnwrapErr, SysRng};
 use sha2::{Digest, Sha256};
 
-struct Block {
-    index: u64,
-    timestamp: String,
-    previous_hash: String,
-    data: String,
-    hash: String,
+struct Wallet {
+    signing_key: SigningKey,
+    verifying_key: VerifyingKey,
+    address: String,
 }
 
-impl Block {
-    fn new(index: u64, previous_hash: String, data: String) -> Self {
-        let timestamp = Utc::now().to_rfc3339();
-
-        let input = format!(
-            "{}{}{}{}",
-            index, timestamp, previous_hash, data
-        );
+impl Wallet {
+    fn new() -> Self {
+        let mut rng = UnwrapErr(SysRng);
+        let signing_key = SigningKey::generate(&mut rng);
+        let verifying_key = signing_key.verifying_key();
 
         let mut hasher = Sha256::new();
-        hasher.update(input.as_bytes());
+        hasher.update(verifying_key.as_bytes());
 
-        let hash = hasher
-    .finalize()
-    .iter()
-    .map(|byte| format!("{:02x}", byte))
-    .collect::<String>();
+        let address = hasher
+            .finalize()
+            .iter()
+            .map(|byte| format!("{:02x}", byte))
+            .collect::<String>();
 
-        Block {
-            index,
-            timestamp,
-            previous_hash,
-            data,
-            hash,
+        Wallet {
+            signing_key,
+            verifying_key,
+            address,
         }
+    }
+
+    fn sign(&self, message: &[u8]) -> Signature {
+        self.signing_key.sign(message)
+    }
+
+    fn verify(
+        verifying_key: &VerifyingKey,
+        message: &[u8],
+        signature: &Signature,
+    ) -> bool {
+        verifying_key.verify(message, signature).is_ok()
     }
 }
 
 fn main() {
-    let genesis_block = Block::new(
-        0,
-        "0".to_string(),
-        "Apraxus Genesis Block".to_string(),
+    println!("=================================");
+    println!("       APRAXUS WALLET TEST");
+    println!("=================================");
+
+    let wallet = Wallet::new();
+
+    println!("Wallet created!");
+    println!();
+    println!("APXV Address:");
+    println!("{}", wallet.address);
+
+    let message = b"Alice -> Bob : 25 APXV";
+
+    println!();
+    println!("Message:");
+    println!("{}", String::from_utf8_lossy(message));
+
+    let signature = wallet.sign(message);
+
+    println!();
+    println!("Digital signature created.");
+
+    let valid = Wallet::verify(
+        &wallet.verifying_key,
+        message,
+        &signature,
     );
 
-    println!("=================================");
-    println!("        APRAXUS BLOCKCHAIN");
-    println!("=================================");
-    println!("Block Index:   {}", genesis_block.index);
-    println!("Timestamp:     {}", genesis_block.timestamp);
-    println!("Previous Hash: {}", genesis_block.previous_hash);
-    println!("Data:          {}", genesis_block.data);
-    println!("Block Hash:    {}", genesis_block.hash);
+    println!();
+    println!("Signature valid: {}", valid);
+
+    let fake_message = b"Alice -> Bob : 1000 APXV";
+
+    let fake_valid = Wallet::verify(
+        &wallet.verifying_key,
+        fake_message,
+        &signature,
+    );
+
+    println!(
+        "Modified transaction valid: {}",
+        fake_valid
+    );
+
     println!("=================================");
 }
