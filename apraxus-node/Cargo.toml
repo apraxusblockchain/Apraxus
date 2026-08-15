@@ -5,7 +5,9 @@ edition = "2024"
 
 [dependencies]
 chrono = "0.4.45"
-ed25519-dalek = { version = "3.0.0", features = ["rand_core"] }
+ed25519-dalek = { version = "3.0.0", features = ["rand_core", "serde"] }
 getrandom = { version = "0.4.3", features = ["sys_rng"] }
 rand = "0.10.2"
 sha2 = "0.11.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"

@@ -1,8 +1,10 @@
 use chrono::Utc;
 use sha2::{Digest, Sha256};
+use serde::{Deserialize, Serialize};
 
 use crate::transaction::SignedTransaction;
 
+#[derive(Serialize, Deserialize)]
 pub struct Block {
     pub index: u64,
     pub timestamp: String,

@@ -1,8 +1,12 @@
+use serde::{Deserialize, Serialize};
+use serde_json;
 use std::collections::HashMap;
+use std::fs;
 
 use crate::block::Block;
 use crate::transaction::SignedTransaction;
 
+#[derive(Serialize, Deserialize)]
 pub struct Blockchain {
     pub blocks: Vec<Block>,
     pub pending_transactions: Vec<SignedTransaction>,
@@ -107,25 +111,47 @@ impl Blockchain {
     pub fn block_count(&self) -> usize {
         self.blocks.len()
     }
+
     pub fn is_chain_valid(&self) -> bool {
-    for i in 0..self.blocks.len() {
-        let current = &self.blocks[i];
+        for i in 0..self.blocks.len() {
+            let current = &self.blocks[i];
 
-        if !current.is_valid() {
-            return false;
+            if !current.is_valid() {
+                return false;
+            }
+
+            if i == 0 {
+                continue;
+            }
+
+            let previous = &self.blocks[i - 1];
+
+            if current.previous_hash != previous.hash {
+                return false;
+            }
         }
 
-        if i == 0 {
-            continue;
-        }
-
-        let previous = &self.blocks[i - 1];
-
-        if current.previous_hash != previous.hash {
-            return false;
-        }
+        true
     }
 
-    true
-}
+    pub fn save_to_file(&self, path: &str) -> Result<(), String> {
+        let json = serde_json::to_string_pretty(self)
+            .map_err(|e| e.to_string())?;
+
+        fs::write(path, json)
+            .map_err(|e| e.to_string())?;
+
+        Ok(())
+    }
+
+    pub fn load_from_file(path: &str) -> Result<Self, String> {
+        let json = fs::read_to_string(path)
+            .map_err(|e| e.to_string())?;
+
+        let blockchain: Blockchain =
+            serde_json::from_str(&json)
+                .map_err(|e| e.to_string())?;
+
+        Ok(blockchain)
+    }
 }
