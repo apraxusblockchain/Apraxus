@@ -1,0 +1,5 @@
+sha2::digest::hybrid_array::Array<u8, UInt<UInt<UInt<UInt<UInt<UInt<UTerm, B1>, B0>, B0>, B0>, B0>, B0>>
+sha2::digest::hybrid_array::Array<u8, UInt<UInt<UInt<UInt<UInt<UInt<UTerm, B1>, B0>, B0>, B0>, B0>, B0>>: LowerHex
+compiler_builtins::math::libm_math::support::big::i256
+compiler_builtins::math::libm_math::support::big::u256
+compiler_builtins::math::libm_math::support::hex_float::hex_fmt::Hex<T>
