@@ -19,6 +19,28 @@ impl Block {
     ) -> Self {
         let timestamp = Utc::now().to_rfc3339();
 
+        let hash = Self::calculate_hash(
+            index,
+            &timestamp,
+            &previous_hash,
+            &transactions,
+        );
+
+        Block {
+            index,
+            timestamp,
+            previous_hash,
+            transactions,
+            hash,
+        }
+    }
+
+    pub fn calculate_hash(
+        index: u64,
+        timestamp: &str,
+        previous_hash: &str,
+        transactions: &[SignedTransaction],
+    ) -> String {
         let transaction_data = transactions
             .iter()
             .map(|tx| tx.message())
@@ -35,18 +57,21 @@ impl Block {
         let mut hasher = Sha256::new();
         hasher.update(input.as_bytes());
 
-        let hash = hasher
+        hasher
             .finalize()
             .iter()
             .map(|byte| format!("{:02x}", byte))
-            .collect::<String>();
+            .collect()
+    }
 
-        Block {
-            index,
-            timestamp,
-            previous_hash,
-            transactions,
-            hash,
-        }
+    pub fn is_valid(&self) -> bool {
+        let calculated_hash = Self::calculate_hash(
+            self.index,
+            &self.timestamp,
+            &self.previous_hash,
+            &self.transactions,
+        );
+
+        self.hash == calculated_hash
     }
 }

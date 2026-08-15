@@ -86,8 +86,14 @@ fn main() {
     );
 
     println!(
-        "\nTotal blocks: {}",
+        "Total blocks: {}",
         blockchain.block_count()
+    );
+
+    // Validate the entire blockchain.
+    println!(
+        "Chain valid: {}",
+        blockchain.is_chain_valid()
     );
 
     println!("=================================");

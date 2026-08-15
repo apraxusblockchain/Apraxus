@@ -107,4 +107,25 @@ impl Blockchain {
     pub fn block_count(&self) -> usize {
         self.blocks.len()
     }
+    pub fn is_chain_valid(&self) -> bool {
+    for i in 0..self.blocks.len() {
+        let current = &self.blocks[i];
+
+        if !current.is_valid() {
+            return false;
+        }
+
+        if i == 0 {
+            continue;
+        }
+
+        let previous = &self.blocks[i - 1];
+
+        if current.previous_hash != previous.hash {
+            return false;
+        }
+    }
+
+    true
+}
 }
