@@ -1,6 +1,6 @@
 use chrono::Utc;
-use sha2::{Digest, Sha256};
 use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
 
 use crate::transaction::SignedTransaction;
 
@@ -57,6 +57,7 @@ impl Block {
         );
 
         let mut hasher = Sha256::new();
+
         hasher.update(input.as_bytes());
 
         hasher

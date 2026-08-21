@@ -1,2 +1,14 @@
 target/
 apraxus_chain.json
+
+# Rust build files
+target/
+
+# macOS
+.DS_Store
+
+# Local blockchain state
+apraxus_chain_*.json
+
+# Local wallet files
+apxs_wallet_*.dat
