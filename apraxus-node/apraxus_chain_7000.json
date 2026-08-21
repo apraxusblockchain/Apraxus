@@ -1,0 +1,68 @@
+{
+  "blocks": [
+    {
+      "index": 0,
+      "timestamp": "2026-08-21T11:39:18.856763+00:00",
+      "previous_hash": "0",
+      "transactions": [],
+      "hash": "3dc29f1d5ccbf403f989a03e8050559e4059d6455426fb796e84289ed5e0a49a"
+    },
+    {
+      "index": 1,
+      "timestamp": "2026-08-21T11:39:18.857628+00:00",
+      "previous_hash": "3dc29f1d5ccbf403f989a03e8050559e4059d6455426fb796e84289ed5e0a49a",
+      "transactions": [
+        {
+          "sender": "58a627da735820758f2945632b21f5d10d29aecf08f03231a4737ac539e1036d",
+          "recipient": "57ab7586943a0cc48a803de3a893b785e7599f17ee3f5760418d96e8fbf80fb0",
+          "amount": 2500000000,
+          "nonce": 0,
+          "fee": 100000,
+          "public_key": [
+            44,
+            66,
+            134,
+            164,
+            84,
+            170,
+            100,
+            185,
+            33,
+            165,
+            85,
+            4,
+            183,
+            245,
+            95,
+            229,
+            159,
+            239,
+            158,
+            119,
+            105,
+            32,
+            193,
+            185,
+            42,
+            84,
+            232,
+            118,
+            162,
+            215,
+            25,
+            143
+          ],
+          "signature": "9AA543CCD4FABC3B9E51E397ACFEA8F755F91CD43795BF8830434F708154F49D2B777AE17F504D6525F1039A84DD9ECF2D9E896CC5B6784053F90F2A61FBAC06"
+        }
+      ],
+      "hash": "0e554acf51aebc14721bdadcba15e61389da78796443066de3a0763acc004130"
+    }
+  ],
+  "pending_transactions": [],
+  "balances": {
+    "57ab7586943a0cc48a803de3a893b785e7599f17ee3f5760418d96e8fbf80fb0": 2500000000,
+    "apxs_fee_pool": 100000,
+    "58a627da735820758f2945632b21f5d10d29aecf08f03231a4737ac539e1036d": 99999997499900000
+  },
+  "total_supply": 100000000000000000
+}
