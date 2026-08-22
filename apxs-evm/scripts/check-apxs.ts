@@ -7,8 +7,7 @@ const { viem } = await network.create({
 
 const publicClient = await viem.getPublicClient();
 
-const address =
-  "0xFE16213961cb4f9B15301f730a5977b9A145add5" as `0x${string}`;
+const address = "0x83cF9647eE01C274E69E2A6F2A14C621AfAf2f6B";
 
 const abi = [
   {
@@ -46,13 +45,6 @@ const abi = [
     inputs: [],
     outputs: [{ type: "uint256" }],
   },
-  {
-    type: "function",
-    name: "owner",
-    stateMutability: "view",
-    inputs: [],
-    outputs: [{ type: "address" }],
-  },
 ] as const;
 
 const name = await publicClient.readContract({
@@ -85,12 +77,6 @@ const maxSupply = await publicClient.readContract({
   functionName: "MAX_SUPPLY",
 });
 
-const owner = await publicClient.readContract({
-  address,
-  abi,
-  functionName: "owner",
-});
-
 console.log("=================================");
 console.log("       APXS SEPOLIA CHECK");
 console.log("=================================");
@@ -100,5 +86,4 @@ console.log("Symbol:", symbol);
 console.log("Decimals:", decimals);
 console.log("Total Supply:", totalSupply.toString());
 console.log("Max Supply:", maxSupply.toString());
-console.log("Owner:", owner);
 console.log("=================================");
