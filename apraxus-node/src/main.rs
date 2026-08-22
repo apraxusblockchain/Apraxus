@@ -5,7 +5,7 @@ mod network;
 mod transaction;
 mod wallet;
 
-use blockchain::{APXS_MAX_SUPPLY, Blockchain};
+use blockchain::{APXS_DEFAULT_FEE, APXS_MAX_SUPPLY, Blockchain};
 
 use network::Network;
 use wallet::Wallet;
@@ -378,7 +378,7 @@ fn main() {
 
         println!("Alice -> Bob : 25 APXS");
 
-        let transaction = alice.create_transaction(&bob.address, 25 * APXS_UNITS, 0);
+        let transaction = alice.create_transaction(&bob.address, 25 * APXS_UNITS, APXS_DEFAULT_FEE);
 
         println!("🔐 Signature valid: {}", transaction.verify_signature());
 
