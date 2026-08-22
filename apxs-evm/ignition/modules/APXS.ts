@@ -1,9 +1,9 @@
 import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
 
 const APXSModule = buildModule("APXSModule", (m) => {
-  const initialOwner = m.getAccount(0);
+  const initialHolder = m.getAccount(0);
 
-  const apxs = m.contract("APXS", [initialOwner]);
+  const apxs = m.contract("APXS", [initialHolder]);
 
   return { apxs };
 });
