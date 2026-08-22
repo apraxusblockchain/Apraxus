@@ -1,33 +1,18 @@
-use ed25519_dalek::{
-    Signature,
-    Verifier,
-    VerifyingKey,
-};
+use ed25519_dalek::{Signature, Verifier, VerifyingKey};
 
-use serde::{
-    Deserialize,
-    Serialize,
-};
+use serde::{Deserialize, Serialize};
 
-use sha2::{
-    Digest,
-    Sha256,
-};
+use sha2::{Digest, Sha256};
 
 // =================================
 // APXS TRANSACTION
 // =================================
 
-#[derive(
-    Clone,
-    Serialize,
-    Deserialize,
-)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct SignedTransaction {
     // =================================
     // TRANSACTION DATA
     // =================================
-
     pub sender: String,
 
     pub recipient: String,
@@ -50,14 +35,12 @@ pub struct SignedTransaction {
     //
     // New Wallet transactions use
     // APXS_DEFAULT_FEE.
-
     #[serde(default)]
     pub fee: u64,
 
     // =================================
     // CRYPTOGRAPHIC DATA
     // =================================
-
     pub public_key: VerifyingKey,
 
     pub signature: Signature,
@@ -73,23 +56,11 @@ pub struct SignedTransaction {
 //
 // No fee existed at that time.
 
-fn legacy_message(
-    sender: &str,
-    recipient: &str,
-    amount: u64,
-    nonce: u64,
-) -> String {
-    format!(
-        "{}{}{}{}",
-        sender,
-        recipient,
-        amount,
-        nonce,
-    )
+fn legacy_message(sender: &str, recipient: &str, amount: u64, nonce: u64) -> String {
+    format!("{}{}{}{}", sender, recipient, amount, nonce,)
 }
 
 impl SignedTransaction {
-
     // =================================
     // TRANSACTION MESSAGE
     // =================================
@@ -110,16 +81,11 @@ impl SignedTransaction {
     // the exact same order.
 
     pub fn message(&self) -> String {
-
-    format!(
-    "{}{}{}{}{}",
-    self.sender,
-    self.recipient,
-    self.amount,
-    self.nonce,
-    self.fee,
-)
-}
+        format!(
+            "{}{}{}{}{}",
+            self.sender, self.recipient, self.amount, self.nonce, self.fee,
+        )
+    }
 
     // =================================
     // DERIVE ADDRESS FROM PUBLIC KEY
@@ -129,19 +95,14 @@ impl SignedTransaction {
     // SHA-256(public key)
 
     fn derived_address(&self) -> String {
-        let mut hasher =
-            Sha256::new();
+        let mut hasher = Sha256::new();
 
-        hasher.update(
-            self.public_key.as_bytes()
-        );
+        hasher.update(self.public_key.as_bytes());
 
         hasher
             .finalize()
             .iter()
-            .map(|byte| {
-                format!("{:02x}", byte)
-            })
+            .map(|byte| format!("{:02x}", byte))
             .collect::<String>()
     }
 
@@ -150,7 +111,6 @@ impl SignedTransaction {
     // =================================
 
     pub fn verify_signature(&self) -> bool {
-
         // =================================
         // BASIC VALIDATION
         // =================================
@@ -188,12 +148,9 @@ impl SignedTransaction {
         // SHA-256 hash of the supplied
         // public key.
 
-        let derived_address =
-            self.derived_address();
+        let derived_address = self.derived_address();
 
-        if derived_address
-            != self.sender
-        {
+        if derived_address != self.sender {
             return false;
         }
 
@@ -208,21 +165,11 @@ impl SignedTransaction {
         // a fee, so verify the old message format.
 
         if self.fee == 0 {
-
-            let message =
-                legacy_message(
-                    &self.sender,
-                    &self.recipient,
-                    self.amount,
-                    self.nonce,
-                );
+            let message = legacy_message(&self.sender, &self.recipient, self.amount, self.nonce);
 
             return self
                 .public_key
-                .verify(
-                    message.as_bytes(),
-                    &self.signature,
-                )
+                .verify(message.as_bytes(), &self.signature)
                 .is_ok();
         }
 
@@ -236,14 +183,10 @@ impl SignedTransaction {
         // This protects the fee from being
         // modified after signing.
 
-        let message =
-            self.message();
+        let message = self.message();
 
         self.public_key
-            .verify(
-                message.as_bytes(),
-                &self.signature,
-            )
+            .verify(message.as_bytes(), &self.signature)
             .is_ok()
     }
 }
