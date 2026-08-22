@@ -11,7 +11,7 @@
 
 **Contract Address:**
 
-`0xFE16213961cb4f9B15301f730a5977b9A145add5`
+`0x83cF9647eE01C274E69E2A6F2A14C621AfAf2f6B`
 
 **Token Name:** Apraxus  
 **Symbol:** APXS  
@@ -45,11 +45,11 @@ The deployed APXS contract has been verified on:
 
 ### Explorer
 
-[Etherscan](https://sepolia.etherscan.io/address/0xFE16213961cb4f9B15301f730a5977b9A145add5#code)
+[Etherscan](https://sepolia.etherscan.io/address/0x83cF9647eE01C274E69E2A6F2A14C621AfAf2f6B#code)
 
-[Blockscout](https://eth-sepolia.blockscout.com/address/0xFE16213961cb4f9B15301f730a5977b9A145add5#code)
+[Blockscout](https://eth-sepolia.blockscout.com/address/0x83cF9647eE01C274E69E2A6F2A14C621AfAf2f6B#code)
 
-[Sourcify](https://sourcify.dev/server/repo-ui/11155111/0xFE16213961cb4f9B15301f730a5977b9A145add5)
+[Sourcify](https://sourcify.dev/server/repo-ui/11155111/0x83cF9647eE01C274E69E2A6F2A14C621AfAf2f6B)
 
 ---
 
