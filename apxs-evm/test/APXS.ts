@@ -6,19 +6,20 @@ import { parseUnits } from "viem";
 
 describe("APXS", function () {
   async function deployAPXS() {
-    const { viem } = await hre.network.connect();
+    const { viem } = await hre.network.create();
 
     const publicClient = await viem.getPublicClient();
-    const [owner, user, other] = await viem.getWalletClients();
+    const [holder, user] = await viem.getWalletClients();
 
-    const apxs = await viem.deployContract("APXS", [owner.account.address]);
+    const apxs = await viem.deployContract("APXS", [
+      holder.account.address,
+    ]);
 
     return {
       apxs,
       publicClient,
-      owner,
+      holder,
       user,
-      other,
     };
   }
 
@@ -50,8 +51,8 @@ describe("APXS", function () {
     ).to.equal(8);
   });
 
-  it("should have a maximum supply of 1 billion APXS", async function () {
-    const { apxs, publicClient } = await deployAPXS();
+  it("should create exactly 1 billion APXS at deployment", async function () {
+    const { apxs, publicClient, holder } = await deployAPXS();
 
     const maxSupply = await publicClient.readContract({
       address: apxs.address,
@@ -59,30 +60,42 @@ describe("APXS", function () {
       functionName: "MAX_SUPPLY",
     });
 
-    expect(maxSupply).to.equal(parseUnits("1000000000", 8));
-  });
-
-  it("should set the deployer as owner", async function () {
-    const { apxs, publicClient, owner } = await deployAPXS();
-
-    const contractOwner = await publicClient.readContract({
+    const totalSupply = await publicClient.readContract({
       address: apxs.address,
       abi: apxs.abi,
-      functionName: "owner",
+      functionName: "totalSupply",
     });
 
-    expect(contractOwner.toLowerCase()).to.equal(
-      owner.account.address.toLowerCase(),
+    const balance = await publicClient.readContract({
+      address: apxs.address,
+      abi: apxs.abi,
+      functionName: "balanceOf",
+      args: [holder.account.address],
+    });
+
+    expect(maxSupply).to.equal(parseUnits("1000000000", 8));
+    expect(totalSupply).to.equal(maxSupply);
+    expect(balance).to.equal(maxSupply);
+  });
+
+  it("should reject a zero initial holder", async function () {
+    const { viem } = await hre.network.create();
+
+    await assert.rejects(
+      viem.deployContract("APXS", [
+        "0x0000000000000000000000000000000000000000",
+      ]),
+      /APXS: zero holder/,
     );
   });
 
-  it("should allow the owner to mint within the maximum supply", async function () {
-    const { apxs, publicClient, owner, user } = await deployAPXS();
+  it("should allow normal ERC20 transfers", async function () {
+    const { apxs, publicClient, holder, user } = await deployAPXS();
 
     const amount = parseUnits("100", 8);
 
-    await apxs.write.mint([user.account.address, amount], {
-      account: owner.account,
+    await apxs.write.transfer([user.account.address, amount], {
+      account: holder.account,
     });
 
     const balance = await publicClient.readContract({
@@ -95,37 +108,13 @@ describe("APXS", function () {
     expect(balance).to.equal(amount);
   });
 
-  it("should reject minting above the maximum supply", async function () {
-    const { apxs, owner, user } = await deployAPXS();
-
-    const maxSupply = parseUnits("1000000000", 8);
-
-    await assert.rejects(
-      apxs.write.mint([user.account.address, maxSupply + 1n], {
-        account: owner.account,
-      }),
-    );
-  });
-
-  it("should reject minting by a non-owner", async function () {
-    const { apxs, user, other } = await deployAPXS();
-
-    const amount = parseUnits("100", 8);
-
-    await assert.rejects(
-      apxs.write.mint([other.account.address, amount], {
-        account: user.account,
-      }),
-    );
-  });
-
   it("should allow holders to burn their own APXS", async function () {
-    const { apxs, publicClient, owner, user } = await deployAPXS();
+    const { apxs, publicClient, holder, user } = await deployAPXS();
 
     const amount = parseUnits("100", 8);
 
-    await apxs.write.mint([user.account.address, amount], {
-      account: owner.account,
+    await apxs.write.transfer([user.account.address, amount], {
+      account: holder.account,
     });
 
     await apxs.write.burn([parseUnits("40", 8)], {
@@ -139,6 +128,15 @@ describe("APXS", function () {
       args: [user.account.address],
     });
 
+    const totalSupply = await publicClient.readContract({
+      address: apxs.address,
+      abi: apxs.abi,
+      functionName: "totalSupply",
+    });
+
     expect(balance).to.equal(parseUnits("60", 8));
+    expect(totalSupply).to.equal(
+      parseUnits("999999960", 8),
+    );
   });
 });
