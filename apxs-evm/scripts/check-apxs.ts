@@ -7,7 +7,7 @@ const { viem } = await network.create({
 
 const publicClient = await viem.getPublicClient();
 
-const address = "0x83cF9647eE01C274E69E2A6F2A14C621AfAf2f6B";
+const address = "0xFE16213961cb4f9B15301f730a5977b9A145add5";
 
 const abi = [
   {
@@ -78,7 +78,7 @@ const maxSupply = await publicClient.readContract({
 });
 
 console.log("=================================");
-console.log("       APXS SEPOLIA CHECK");
+console.log("       APXS MAINNET CHECK");
 console.log("=================================");
 console.log("Contract:", address);
 console.log("Name:", name);
