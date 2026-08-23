@@ -1,17 +1,27 @@
 use axum::{
+    Json, Router,
     extract::{Path, State},
     http::StatusCode,
     routing::get,
-    Json, Router,
 };
 
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
 use sha2::{Digest, Sha256};
 
 use crate::blockchain::{APXS_DEFAULT_FEE, APXS_MAX_SUPPLY, Blockchain};
 
 use std::sync::Arc;
+
+// =================================
+// APXS ETHEREUM MAINNET
+// =================================
+
+const APXS_ETHEREUM_CHAIN_ID: u64 = 1;
+
+const APXS_ETHEREUM_CONTRACT: &str = "0xFE16213961cb4f9B15301f730a5977b9A145add5";
+
+const APXS_ETHEREUM_DECIMALS: u8 = 8;
 
 // =================================
 // API STATE
@@ -91,7 +101,14 @@ async fn token_info() -> Json<Value> {
         "symbol": "APXS",
         "decimals": 8,
         "max_supply": APXS_MAX_SUPPLY,
-        "default_fee": APXS_DEFAULT_FEE
+        "default_fee": APXS_DEFAULT_FEE,
+
+        "ethereum": {
+            "network": "Ethereum Mainnet",
+            "chain_id": APXS_ETHEREUM_CHAIN_ID,
+            "contract": APXS_ETHEREUM_CONTRACT,
+            "decimals": APXS_ETHEREUM_DECIMALS
+        }
     }))
 }
 
@@ -143,17 +160,8 @@ async fn balance(
 // This does NOT modify the blockchain
 // storage format.
 
-fn transaction_hash(
-    sender: &str,
-    recipient: &str,
-    amount: u64,
-    nonce: u64,
-    fee: u64,
-) -> String {
-    let input = format!(
-        "{}{}{}{}{}",
-        sender, recipient, amount, nonce, fee
-    );
+fn transaction_hash(sender: &str, recipient: &str, amount: u64, nonce: u64, fee: u64) -> String {
+    let input = format!("{}{}{}{}{}", sender, recipient, amount, nonce, fee);
 
     let mut hasher = Sha256::new();
 
@@ -170,9 +178,7 @@ fn transaction_hash(
 // BLOCK LIST
 // =================================
 
-async fn blocks(
-    State(state): State<ApiState>,
-) -> Result<Json<Value>, (StatusCode, String)> {
+async fn blocks(State(state): State<ApiState>) -> Result<Json<Value>, (StatusCode, String)> {
     let blockchain = Blockchain::load_from_file(state.blockchain_file.as_str())
         .map_err(|error| (StatusCode::INTERNAL_SERVER_ERROR, error))?;
 
@@ -212,10 +218,7 @@ async fn block(
     let block = match blockchain.blocks.iter().find(|block| block.index == height) {
         Some(block) => block,
         None => {
-            return Err((
-                StatusCode::NOT_FOUND,
-                format!("Block {} not found", height),
-            ));
+            return Err((StatusCode::NOT_FOUND, format!("Block {} not found", height)));
         }
     };
 
@@ -223,13 +226,7 @@ async fn block(
         .transactions
         .iter()
         .map(|tx| {
-            let hash = transaction_hash(
-                &tx.sender,
-                &tx.recipient,
-                tx.amount,
-                tx.nonce,
-                tx.fee,
-            );
+            let hash = transaction_hash(&tx.sender, &tx.recipient, tx.amount, tx.nonce, tx.fee);
 
             json!({
                 "hash": hash,
@@ -266,13 +263,7 @@ async fn transaction(
 
     for block in &blockchain.blocks {
         for tx in &block.transactions {
-            let tx_hash = transaction_hash(
-                &tx.sender,
-                &tx.recipient,
-                tx.amount,
-                tx.nonce,
-                tx.fee,
-            );
+            let tx_hash = transaction_hash(&tx.sender, &tx.recipient, tx.amount, tx.nonce, tx.fee);
 
             if tx_hash == hash {
                 return Ok(Json(json!({
