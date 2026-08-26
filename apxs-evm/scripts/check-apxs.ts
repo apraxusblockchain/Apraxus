@@ -1,7 +1,7 @@
 import { network } from "hardhat";
 
 const { viem } = await network.create({
-  network: "sepolia",
+  network: "arbitrumSepolia",
   chainType: "l1",
 });
 
@@ -78,12 +78,15 @@ const maxSupply = await publicClient.readContract({
 });
 
 console.log("=================================");
-console.log("       APXS MAINNET CHECK");
+console.log("   APXS ARBITRUM SEPOLIA CHECK");
 console.log("=================================");
 console.log("Contract:", address);
+console.log("Network: Arbitrum Sepolia");
 console.log("Name:", name);
 console.log("Symbol:", symbol);
 console.log("Decimals:", decimals);
-console.log("Total Supply:", totalSupply.toString());
-console.log("Max Supply:", maxSupply.toString());
+console.log("Total Supply (raw):", totalSupply.toString());
+console.log("Total Supply (APXS):", Number(totalSupply) / 10 ** Number(decimals));
+console.log("Max Supply (raw):", maxSupply.toString());
+console.log("Max Supply (APXS):", Number(maxSupply) / 10 ** Number(decimals));
 console.log("=================================");
