@@ -1,57 +1,49 @@
-# Sample Hardhat 3 Project (`node:test` and `viem`)
+# Apraxus APXS Token
 
-This project showcases a Hardhat 3 project using the native Node.js test runner (`node:test`) and the `viem` library for Ethereum interactions.
+This repository contains the APXS ERC-20 token implementation and its automated tests.
 
-To learn more about Hardhat 3, please visit the [Getting Started guide](https://hardhat.org/docs/getting-started#getting-started-with-hardhat-3). To share your feedback, join our [Hardhat 3](https://hardhat.org/hardhat3-telegram-group) Telegram group or [open an issue](https://github.com/NomicFoundation/hardhat/issues/new) in our GitHub issue tracker.
+## Token
 
-## Project Overview
+- Name: Apraxus
+- Symbol: APXS
+- Decimals: 8
+- Maximum Supply: 1,000,000,000 APXS
+- Additional minting: None
+- Burn: Token holders may burn their own APXS
 
-This example project includes:
+## Contract
 
-- A simple Hardhat configuration file.
-- Foundry-compatible Solidity unit tests.
-- TypeScript integration tests using [`node:test`](nodejs.org/api/test.html), the new Node.js native test runner, and [`viem`](https://viem.sh/).
-- Examples demonstrating how to connect to different types of networks, including locally simulating OP mainnet.
+The APXS contract is located at:
 
-## Usage
+`contracts/APXS.sol`
 
-### Running Tests
+The contract inherits OpenZeppelin ERC20 and mints the fixed maximum supply once during construction to the specified initial holder.
 
-To run all the tests in the project, execute the following command:
+The constructor rejects the zero address.
 
-```shell
+There is no owner-controlled mint function, upgrade mechanism, or administrative supply expansion mechanism.
+
+## Supply
+
+The maximum supply is:
+
+`1,000,000,000 APXS`
+
+With 8 decimals, this corresponds to:
+
+`100000000000000000` atomic units.
+
+The constructor performs the initial mint of the complete maximum supply.
+
+Burning reduces total supply and cannot create additional APXS.
+
+## Testing
+
+Tests are located at:
+
+`test/APXS.ts`
+
+Run the full test suite with:
+
+```bash
 npx hardhat test
-```
-
-You can also selectively run the Solidity or `node:test` tests:
-
-```shell
-npx hardhat test solidity
-npx hardhat test nodejs
-```
-
-### Make a deployment to Sepolia
-
-This project includes an example Ignition module to deploy the contract. You can deploy this module to a locally simulated chain or to Sepolia.
-
-To run the deployment to a local chain:
-
-```shell
-npx hardhat ignition deploy ignition/modules/Counter.ts
-```
-
-To run the deployment to Sepolia, you need an account with funds to send the transaction. The provided Hardhat configuration includes a Configuration Variable called `SEPOLIA_PRIVATE_KEY`, which you can use to set the private key of the account you want to use.
-
-You can set the `SEPOLIA_PRIVATE_KEY` variable using the `hardhat-keystore` plugin or by setting it as an environment variable.
-
-To set the `SEPOLIA_PRIVATE_KEY` config variable using `hardhat-keystore`:
-
-```shell
-npx hardhat keystore set SEPOLIA_PRIVATE_KEY
-```
-
-After setting the variable, you can run the deployment with the Sepolia network:
-
-```shell
-npx hardhat ignition deploy --network sepolia ignition/modules/Counter.ts
-```
