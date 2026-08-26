@@ -4,7 +4,7 @@ const require = createRequire(import.meta.url);
 
 const JSBI = require("jsbi");
 
-const { Token, CurrencyAmount } =
+const { Token } =
   require("@uniswap/sdk-core");
 
 const { Pool, Position } =
@@ -45,15 +45,9 @@ const pool = new Pool(
   tickCurrent,
 );
 
-const amountWETH = CurrencyAmount.fromRawAmount(
-  WETH,
-  "100000000000000",
-);
+const amountWETH = JSBI.BigInt("100000000000000");
 
-const amountAPXS = CurrencyAmount.fromRawAmount(
-  APXS,
-  "1000000000000",
-);
+const amountAPXS = JSBI.BigInt("1000000000000");
 
 const position = Position.fromAmounts({
   pool,
