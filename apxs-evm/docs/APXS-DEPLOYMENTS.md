@@ -55,6 +55,30 @@ The deployed APXS Mainnet contract has been verified on:
 
 ---
 
+## Arbitrum Sepolia
+
+**Network:** Arbitrum Sepolia
+**Chain ID:** 421614
+**Status:** Deployed & Verified
+**Purpose:** Development / Uniswap v4 liquidity integration
+
+### APXS Token Contract
+
+**Contract Address:**
+
+`0xFE16213961cb4f9B15301f730a5977b9A145add5`
+
+**Token Name:** Apraxus
+**Symbol:** APXS
+**Decimals:** 8
+
+This deployment is used by the current APXS / WETH Uniswap v4 development and liquidity integration.
+
+It is a testnet deployment and is separate from the Ethereum Mainnet deployment, despite using the same EVM address.
+
+
+---
+
 ## Sepolia Testnet
 
 **Network:** Ethereum Sepolia
