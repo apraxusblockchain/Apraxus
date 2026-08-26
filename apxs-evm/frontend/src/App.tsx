@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import { createPublicClient, http } from 'viem'
+import { Token } from '@uniswap/sdk-core'
+import { Pool, Position } from '@uniswap/v4-sdk'
 import { arbitrumSepolia } from 'viem/chains'
 import './App.css'
 
@@ -77,6 +79,10 @@ function App() {
   const [account, setAccount] = useState<string | null>(null)
   const [connecting, setConnecting] = useState(false)
   const [tick, setTick] = useState<number | null>(null)
+  const [tickLower, setTickLower] = useState<number | null>(null)
+  const [tickUpper, setTickUpper] = useState<number | null>(null)
+  const [requiredWeth, setRequiredWeth] = useState<string | null>(null)
+  const [requiredApxs, setRequiredApxs] = useState<string | null>(null)
   const [poolLiquidity, setPoolLiquidity] = useState<bigint | null>(null)
   const [positionLiquidity, setPositionLiquidity] = useState<bigint | null>(null)
   const [positionOwner, setPositionOwner] = useState<string | null>(null)
@@ -143,10 +149,89 @@ function App() {
           }),
         ])
 
-      setTick(Number(slot0[1]))
+      const currentSqrtPrice = slot0[0]
+      const currentTick = Number(slot0[1])
+
+      const packedInfo = await client.readContract({
+        address: POSITION_MANAGER,
+        abi: [
+          {
+            type: 'function',
+            name: 'getPoolAndPositionInfo',
+            stateMutability: 'view',
+            inputs: [{ name: 'tokenId', type: 'uint256' }],
+            outputs: [
+              {
+                name: 'poolKey',
+                type: 'tuple',
+                components: [
+                  { name: 'currency0', type: 'address' },
+                  { name: 'currency1', type: 'address' },
+                  { name: 'fee', type: 'uint24' },
+                  { name: 'tickSpacing', type: 'int24' },
+                  { name: 'hooks', type: 'address' },
+                ],
+              },
+              { name: 'info', type: 'uint256' },
+            ],
+          },
+        ],
+        functionName: 'getPoolAndPositionInfo',
+        args: [TOKEN_ID],
+      })
+
+      const info = packedInfo[1]
+
+      function decodeInt24(raw: bigint) {
+        return raw >= 0x800000n
+          ? Number(raw - 0x1000000n)
+          : Number(raw)
+      }
+
+      const lower = decodeInt24((info >> 8n) & 0xffffffn)
+      const upper = decodeInt24((info >> 32n) & 0xffffffn)
+
+      setTick(currentTick)
+      setTickLower(lower)
+      setTickUpper(upper)
       setPoolLiquidity(liquidity)
       setPositionOwner(owner)
       setPositionLiquidity(positionLiq)
+
+      const WETH = new Token(
+        421614,
+        '0x980B62Da83eFf3D4576C647993b0c1D7faf17c73',
+        18,
+        'WETH',
+      )
+
+      const APXS = new Token(
+        421614,
+        '0xFE16213961cb4f9B15301f730a5977b9A145add5',
+        8,
+        'APXS',
+      )
+
+      const pool = new Pool(
+        WETH,
+        APXS,
+        3000,
+        60,
+        '0x0000000000000000000000000000000000000000',
+        currentSqrtPrice.toString(),
+        liquidity.toString(),
+        currentTick,
+      )
+
+      const position = new Position({
+        pool,
+        liquidity: positionLiq.toString(),
+        tickLower: lower,
+        tickUpper: upper,
+      })
+
+      setRequiredWeth(position.amount0.toExact())
+      setRequiredApxs(position.amount1.toExact())
     } catch (err) {
       console.error('On-chain data failed:', err)
       setError('Unable to read Arbitrum Sepolia data.')
@@ -299,7 +384,7 @@ function App() {
 
             <div>
               <span>POSITION RANGE</span>
-              <strong>-46200 → -45960</strong>
+              <strong>{tickLower !== null && tickUpper !== null ? `${tickLower} → ${tickUpper}` : '—'}</strong>
             </div>
 
             <div>
@@ -320,12 +405,12 @@ function App() {
 
             <div>
               <span>WETH REQUIRED</span>
-              <strong>0.00006447218057508</strong>
+              <strong>{requiredWeth ?? '—'}</strong>
             </div>
 
             <div>
               <span>APXS REQUIRED</span>
-              <strong>9,999.99999999</strong>
+              <strong>{requiredApxs ?? '—'}</strong>
             </div>
           </div>
 

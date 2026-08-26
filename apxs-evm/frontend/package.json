@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@uniswap/sdk-core": "^7.19.1",
+    "@uniswap/v4-sdk": "^2.3.2",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "viem": "^2.55.19"
